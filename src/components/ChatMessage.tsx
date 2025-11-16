@@ -33,20 +33,20 @@ export function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div
       className={cn(
-        "flex gap-3 p-4 rounded-lg",
+        "flex gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg",
         isUser ? "bg-muted/50" : "bg-background"
       )}
     >
-      <Avatar className="h-8 w-8 mt-1">
+      <Avatar className="h-7 w-7 sm:h-8 sm:w-8 mt-1 shrink-0">
         <AvatarFallback className={isUser ? "bg-primary text-primary-foreground" : "bg-secondary"}>
-          {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+          {isUser ? <User className="h-3 w-3 sm:h-4 sm:w-4" /> : <Bot className="h-3 w-3 sm:h-4 sm:w-4" />}
         </AvatarFallback>
       </Avatar>
-      <div className="flex-1 space-y-2">
-        <div className="font-semibold text-sm">
+      <div className="flex-1 space-y-1 sm:space-y-2 min-w-0">
+        <div className="font-semibold text-xs sm:text-sm">
           {isUser ? "You" : "Arab GPT"}
         </div>
-        <div className="text-sm whitespace-pre-wrap leading-relaxed">
+        <div className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed wrap-break-word">
           {content}
         </div>
       </div>

@@ -71,18 +71,18 @@ function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen max-h-screen">
+    <div className="flex flex-col h-screen max-h-screen overflow-hidden">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="flex h-14 items-center px-4">
-          <h1 className="text-lg font-semibold">Arab GPT</h1>
+      <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 shrink-0">
+        <div className="flex h-12 sm:h-14 items-center px-3 sm:px-4">
+          <h1 className="text-base sm:text-lg font-semibold">Arab GPT</h1>
         </div>
       </header>
 
       {/* Main Chat Area */}
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-hidden flex flex-col min-h-0">
         {error && (
-          <div className="bg-destructive/15 text-destructive px-4 py-2 text-sm">
+          <div className="bg-destructive/15 text-destructive px-3 sm:px-4 py-2 text-xs sm:text-sm shrink-0">
             Error: {error.message}
           </div>
         )}
@@ -96,22 +96,22 @@ function ChatPage() {
         />
 
         {/* Chat Input */}
-        <form onSubmit={handleSubmit} className="flex gap-2 p-4 border-t bg-background">
+        <form onSubmit={handleSubmit} className="flex gap-2 p-3 sm:p-4 border-t bg-background shrink-0">
           <Textarea
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your message... (Shift+Enter for new line)"
+            placeholder="Type your message..."
             disabled={status === 'streaming' || status === 'submitted'}
-            className="flex-1 min-h-[60px] max-h-[200px]"
+            className="flex-1 min-h-[50px] sm:min-h-[60px] max-h-[150px] sm:max-h-[200px] resize-none text-sm sm:text-base"
             autoFocus
           />
           <Button 
             type="submit" 
             disabled={!input.trim() || status === 'streaming' || status === 'submitted'}
             size="icon"
-            className="self-end"
+            className="self-end h-[50px] w-[50px] sm:h-10 sm:w-10 shrink-0"
           >
             <Send className="h-4 w-4" />
           </Button>
