@@ -5,10 +5,11 @@ A modern AI-powered chat application built with TanStack Start, shadcn-ui, and V
 ## Features
 
 - 🤖 AI-powered chat using OpenAI GPT models
+- 🔒 Password protection to secure access
 - 🎨 Beautiful UI with shadcn-ui components
 - ⚡ Real-time streaming responses
 - 🌓 Dark mode support
-- 📱 Responsive design
+- 📱 Fully responsive mobile design
 - 🔄 Built with TanStack Start for optimal performance
 
 ## Getting Started
@@ -29,16 +30,20 @@ npm install
 
 3. Set up your environment variables:
 
-Create a `.env` file in the root directory and add your OpenAI API key:
+Create a `.env` file in the root directory and add:
 
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
+PASSWORD=your_password_here
 ```
+
+- `OPENAI_API_KEY`: Get one at https://platform.openai.com/api-keys
+- `PASSWORD`: Set a password to protect access to the chat (defaults to "admin" if not set)
 
 You can also copy from the example file:
 
 ```bash
-cp env-example.txt .env
+cp .env.example .env
 ```
 
 ### Development

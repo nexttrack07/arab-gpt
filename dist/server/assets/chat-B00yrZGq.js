@@ -1,11 +1,12 @@
-import { jsx, jsxs } from "react/jsx-runtime";
+import { jsx, jsxs, Fragment } from "react/jsx-runtime";
 import { useChat } from "@ai-sdk/react";
 import * as React from "react";
 import { useRef, useEffect, useState } from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { User, Bot, Send } from "lucide-react";
+import { User, Bot, X, Lock, Send } from "lucide-react";
 import { cva } from "class-variance-authority";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
@@ -191,8 +192,100 @@ const Textarea = React.forwardRef(
   }
 );
 Textarea.displayName = "Textarea";
+const Input = React.forwardRef(
+  ({ className, type, ...props }, ref) => {
+    return /* @__PURE__ */ jsx(
+      "input",
+      {
+        type,
+        className: cn(
+          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        ),
+        ref,
+        ...props
+      }
+    );
+  }
+);
+Input.displayName = "Input";
+const Dialog = DialogPrimitive.Root;
+const DialogPortal = DialogPrimitive.Portal;
+const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  DialogPrimitive.Overlay,
+  {
+    ref,
+    className: cn(
+      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className
+    ),
+    ...props
+  }
+));
+DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
+const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => /* @__PURE__ */ jsxs(DialogPortal, { children: [
+  /* @__PURE__ */ jsx(DialogOverlay, {}),
+  /* @__PURE__ */ jsxs(
+    DialogPrimitive.Content,
+    {
+      ref,
+      className: cn(
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+        className
+      ),
+      ...props,
+      children: [
+        children,
+        /* @__PURE__ */ jsxs(DialogPrimitive.Close, { className: "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground", children: [
+          /* @__PURE__ */ jsx(X, { className: "h-4 w-4" }),
+          /* @__PURE__ */ jsx("span", { className: "sr-only", children: "Close" })
+        ] })
+      ]
+    }
+  )
+] }));
+DialogContent.displayName = DialogPrimitive.Content.displayName;
+const DialogHeader = ({
+  className,
+  ...props
+}) => /* @__PURE__ */ jsx(
+  "div",
+  {
+    className: cn(
+      "flex flex-col space-y-1.5 text-center sm:text-left",
+      className
+    ),
+    ...props
+  }
+);
+DialogHeader.displayName = "DialogHeader";
+const DialogTitle = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  DialogPrimitive.Title,
+  {
+    ref,
+    className: cn(
+      "text-lg font-semibold leading-none tracking-tight",
+      className
+    ),
+    ...props
+  }
+));
+DialogTitle.displayName = DialogPrimitive.Title.displayName;
+const DialogDescription = React.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ jsx(
+  DialogPrimitive.Description,
+  {
+    ref,
+    className: cn("text-sm text-muted-foreground", className),
+    ...props
+  }
+));
+DialogDescription.displayName = DialogPrimitive.Description.displayName;
 function ChatPage() {
   const [input, setInput] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [isCheckingPassword, setIsCheckingPassword] = useState(false);
   const inputRef = useRef(null);
   const {
     messages,
@@ -200,6 +293,40 @@ function ChatPage() {
     status,
     error
   } = useChat();
+  useEffect(() => {
+    const authenticated = sessionStorage.getItem("authenticated");
+    if (authenticated === "true") {
+      setIsAuthenticated(true);
+    }
+  }, []);
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    setPasswordError("");
+    setIsCheckingPassword(true);
+    try {
+      const response = await fetch("/api/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          password: passwordInput
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        sessionStorage.setItem("authenticated", "true");
+        setIsAuthenticated(true);
+        setPasswordInput("");
+      } else {
+        setPasswordError("Incorrect password");
+      }
+    } catch (err) {
+      setPasswordError("Failed to verify password");
+    } finally {
+      setIsCheckingPassword(false);
+    }
+  };
   const handleSubmit = async (e) => {
     e?.preventDefault();
     if (!input.trim() || status === "streaming" || status === "submitted") return;
@@ -236,18 +363,37 @@ function ChatPage() {
       setTimeout(() => inputRef.current?.focus(), 0);
     }
   };
-  return /* @__PURE__ */ jsxs("div", { className: "flex flex-col h-screen max-h-screen overflow-hidden", children: [
-    /* @__PURE__ */ jsx("header", { className: "border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 shrink-0", children: /* @__PURE__ */ jsx("div", { className: "flex h-12 sm:h-14 items-center px-3 sm:px-4", children: /* @__PURE__ */ jsx("h1", { className: "text-base sm:text-lg font-semibold", children: "Arab GPT" }) }) }),
-    /* @__PURE__ */ jsxs("div", { className: "flex-1 overflow-hidden flex flex-col min-h-0", children: [
-      error && /* @__PURE__ */ jsxs("div", { className: "bg-destructive/15 text-destructive px-3 sm:px-4 py-2 text-xs sm:text-sm shrink-0", children: [
-        "Error: ",
-        error.message
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Dialog, { open: !isAuthenticated, onOpenChange: () => {
+    }, children: /* @__PURE__ */ jsxs(DialogContent, { className: "sm:max-w-md", onInteractOutside: (e) => e.preventDefault(), onEscapeKeyDown: (e) => e.preventDefault(), children: [
+      /* @__PURE__ */ jsxs(DialogHeader, { children: [
+        /* @__PURE__ */ jsxs(DialogTitle, { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx(Lock, { className: "h-5 w-5" }),
+          "Password Required"
+        ] }),
+        /* @__PURE__ */ jsx(DialogDescription, { children: "Please enter the password to access Arab GPT" })
       ] }),
-      /* @__PURE__ */ jsx(ChatMessages, { messages }),
-      /* @__PURE__ */ jsx(QuickActions, { onSelectAction: handleQuickAction, disabled: status === "streaming" || status === "submitted" }),
-      /* @__PURE__ */ jsxs("form", { onSubmit: handleSubmit, className: "flex gap-2 p-3 sm:p-4 border-t bg-background shrink-0", children: [
-        /* @__PURE__ */ jsx(Textarea, { ref: inputRef, value: input, onChange: (e) => setInput(e.target.value), onKeyDown: handleKeyDown, placeholder: "Type your message...", disabled: status === "streaming" || status === "submitted", className: "flex-1 min-h-[50px] sm:min-h-[60px] max-h-[150px] sm:max-h-[200px] resize-none text-sm sm:text-base", autoFocus: true }),
-        /* @__PURE__ */ jsx(Button, { type: "submit", disabled: !input.trim() || status === "streaming" || status === "submitted", size: "icon", className: "self-end h-[50px] w-[50px] sm:h-10 sm:w-10 shrink-0", children: /* @__PURE__ */ jsx(Send, { className: "h-4 w-4" }) })
+      /* @__PURE__ */ jsxs("form", { onSubmit: handlePasswordSubmit, className: "space-y-4", children: [
+        /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
+          /* @__PURE__ */ jsx(Input, { type: "password", placeholder: "Enter password", value: passwordInput, onChange: (e) => setPasswordInput(e.target.value), disabled: isCheckingPassword, autoFocus: true, className: passwordError ? "border-destructive" : "" }),
+          passwordError && /* @__PURE__ */ jsx("p", { className: "text-sm text-destructive", children: passwordError })
+        ] }),
+        /* @__PURE__ */ jsx(Button, { type: "submit", className: "w-full", disabled: isCheckingPassword || !passwordInput, children: isCheckingPassword ? "Verifying..." : "Unlock" })
+      ] })
+    ] }) }),
+    /* @__PURE__ */ jsxs("div", { className: "flex flex-col h-screen max-h-screen overflow-hidden", children: [
+      /* @__PURE__ */ jsx("header", { className: "border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 shrink-0", children: /* @__PURE__ */ jsx("div", { className: "flex h-12 sm:h-14 items-center px-3 sm:px-4", children: /* @__PURE__ */ jsx("h1", { className: "text-base sm:text-lg font-semibold", children: "Arab GPT" }) }) }),
+      /* @__PURE__ */ jsxs("div", { className: "flex-1 overflow-hidden flex flex-col min-h-0", children: [
+        error && /* @__PURE__ */ jsxs("div", { className: "bg-destructive/15 text-destructive px-3 sm:px-4 py-2 text-xs sm:text-sm shrink-0", children: [
+          "Error: ",
+          error.message
+        ] }),
+        /* @__PURE__ */ jsx(ChatMessages, { messages }),
+        /* @__PURE__ */ jsx(QuickActions, { onSelectAction: handleQuickAction, disabled: status === "streaming" || status === "submitted" }),
+        /* @__PURE__ */ jsxs("form", { onSubmit: handleSubmit, className: "flex gap-2 p-3 sm:p-4 border-t bg-background shrink-0", children: [
+          /* @__PURE__ */ jsx(Textarea, { ref: inputRef, value: input, onChange: (e) => setInput(e.target.value), onKeyDown: handleKeyDown, placeholder: "Type your message...", disabled: status === "streaming" || status === "submitted", className: "flex-1 min-h-[50px] sm:min-h-[60px] max-h-[150px] sm:max-h-[200px] resize-none text-sm sm:text-base", autoFocus: true }),
+          /* @__PURE__ */ jsx(Button, { type: "submit", disabled: !input.trim() || status === "streaming" || status === "submitted", size: "icon", className: "self-end h-[50px] w-[50px] sm:h-10 sm:w-10 shrink-0", children: /* @__PURE__ */ jsx(Send, { className: "h-4 w-4" }) })
+        ] })
       ] })
     ] })
   ] });

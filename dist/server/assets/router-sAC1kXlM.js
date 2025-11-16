@@ -68,8 +68,8 @@ function NotFound({ children }) {
     ] })
   ] });
 }
-const appCss = "/assets/app-DMrObANz.css";
-const Route$3 = createRootRoute({
+const appCss = "/assets/app-itEsnCeN.css";
+const Route$4 = createRootRoute({
   head: () => ({
     meta: [
       {
@@ -125,16 +125,16 @@ function RootDocument({ children }) {
     ] })
   ] });
 }
-const $$splitComponentImporter = () => import("./chat-jf5fAN0V.js");
-const Route$2 = createFileRoute("/chat")({
+const $$splitComponentImporter = () => import("./chat-B00yrZGq.js");
+const Route$3 = createFileRoute("/chat")({
   component: lazyRouteComponent($$splitComponentImporter, "component")
 });
-const Route$1 = createFileRoute("/")({
+const Route$2 = createFileRoute("/")({
   beforeLoad: () => {
     throw redirect({ to: "/chat" });
   }
 });
-const Route = createFileRoute("/api/chat")({
+const Route$1 = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
@@ -175,27 +175,69 @@ const Route = createFileRoute("/api/chat")({
     }
   }
 });
-const ChatRoute = Route$2.update({
+const Route = createFileRoute("/api/auth")({
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
+        try {
+          const { password } = await request.json();
+          const correctPassword = process.env.PASSWORD || "admin";
+          if (password === correctPassword) {
+            return new Response(
+              JSON.stringify({ success: true }),
+              {
+                status: 200,
+                headers: { "Content-Type": "application/json" }
+              }
+            );
+          }
+          return new Response(
+            JSON.stringify({ success: false, error: "Incorrect password" }),
+            {
+              status: 401,
+              headers: { "Content-Type": "application/json" }
+            }
+          );
+        } catch (error) {
+          return new Response(
+            JSON.stringify({ success: false, error: "Failed to verify password" }),
+            {
+              status: 500,
+              headers: { "Content-Type": "application/json" }
+            }
+          );
+        }
+      }
+    }
+  }
+});
+const ChatRoute = Route$3.update({
   id: "/chat",
   path: "/chat",
-  getParentRoute: () => Route$3
+  getParentRoute: () => Route$4
 });
-const IndexRoute = Route$1.update({
+const IndexRoute = Route$2.update({
   id: "/",
   path: "/",
-  getParentRoute: () => Route$3
+  getParentRoute: () => Route$4
 });
-const ApiChatRoute = Route.update({
+const ApiChatRoute = Route$1.update({
   id: "/api/chat",
   path: "/api/chat",
-  getParentRoute: () => Route$3
+  getParentRoute: () => Route$4
+});
+const ApiAuthRoute = Route.update({
+  id: "/api/auth",
+  path: "/api/auth",
+  getParentRoute: () => Route$4
 });
 const rootRouteChildren = {
   IndexRoute,
   ChatRoute,
+  ApiAuthRoute,
   ApiChatRoute
 };
-const routeTree = Route$3._addFileChildren(rootRouteChildren)._addFileTypes();
+const routeTree = Route$4._addFileChildren(rootRouteChildren)._addFileTypes();
 function getRouter() {
   const router = createRouter({
     routeTree,

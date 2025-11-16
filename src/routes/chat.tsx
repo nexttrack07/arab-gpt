@@ -4,8 +4,16 @@ import { ChatMessages } from '@/components/ChatMessages'
 import { QuickActions } from '@/components/QuickActions'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Send } from 'lucide-react'
-import { useState, FormEvent, useRef, KeyboardEvent } from 'react'
+import { Input } from '@/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Send, Lock } from 'lucide-react'
+import { useState, FormEvent, useRef, KeyboardEvent, useEffect } from 'react'
 
 export const Route = createFileRoute('/chat')({
   component: ChatPage,
@@ -13,8 +21,48 @@ export const Route = createFileRoute('/chat')({
 
 function ChatPage() {
   const [input, setInput] = useState('')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [passwordInput, setPasswordInput] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [isCheckingPassword, setIsCheckingPassword] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const { messages, sendMessage, status, error } = useChat()
+
+  // Check if already authenticated in session
+  useEffect(() => {
+    const authenticated = sessionStorage.getItem('authenticated')
+    if (authenticated === 'true') {
+      setIsAuthenticated(true)
+    }
+  }, [])
+
+  const handlePasswordSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    setPasswordError('')
+    setIsCheckingPassword(true)
+
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: passwordInput }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        sessionStorage.setItem('authenticated', 'true')
+        setIsAuthenticated(true)
+        setPasswordInput('')
+      } else {
+        setPasswordError('Incorrect password')
+      }
+    } catch (err) {
+      setPasswordError('Failed to verify password')
+    } finally {
+      setIsCheckingPassword(false)
+    }
+  }
 
   const handleSubmit = async (e?: FormEvent) => {
     e?.preventDefault()
@@ -71,7 +119,51 @@ function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen max-h-screen overflow-hidden">
+    <>
+      {/* Password Protection Dialog */}
+      <Dialog open={!isAuthenticated} onOpenChange={() => {}}>
+        <DialogContent 
+          className="sm:max-w-md" 
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5" />
+              Password Required
+            </DialogTitle>
+            <DialogDescription>
+              Please enter the password to access Arab GPT
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="password"
+                placeholder="Enter password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                disabled={isCheckingPassword}
+                autoFocus
+                className={passwordError ? 'border-destructive' : ''}
+              />
+              {passwordError && (
+                <p className="text-sm text-destructive">{passwordError}</p>
+              )}
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isCheckingPassword || !passwordInput}
+            >
+              {isCheckingPassword ? 'Verifying...' : 'Unlock'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Main Chat Interface */}
+      <div className="flex flex-col h-screen max-h-screen overflow-hidden">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 shrink-0">
         <div className="flex h-12 sm:h-14 items-center px-3 sm:px-4">
@@ -118,6 +210,7 @@ function ChatPage() {
         </form>
       </div>
     </div>
+    </>
   )
 }
 
