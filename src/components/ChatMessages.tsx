@@ -1,0 +1,42 @@
+import { useEffect, useRef } from "react"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { ChatMessage } from "./ChatMessage"
+import type { Message } from "ai"
+
+interface ChatMessagesProps {
+  messages: Message[]
+}
+
+export function ChatMessages({ messages }: ChatMessagesProps) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [messages])
+
+  return (
+    <ScrollArea ref={scrollRef} className="flex-1 p-4">
+      <div className="space-y-4 max-w-3xl mx-auto">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center py-12">
+            <h2 className="text-2xl font-bold mb-2">Welcome to Arab GPT</h2>
+            <p className="text-muted-foreground">
+              Start a conversation by typing a message below
+            </p>
+          </div>
+        ) : (
+          messages.map((message) => (
+            <ChatMessage
+              key={message.id}
+              role={message.role}
+              content={message.content}
+            />
+          ))
+        )}
+      </div>
+    </ScrollArea>
+  )
+}
+
