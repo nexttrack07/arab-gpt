@@ -14,20 +14,17 @@ export const Route = createFileRoute('/chat')({
 function ChatPage() {
   const [input, setInput] = useState('')
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const { messages, sendMessage, status, error } = useChat({
-    api: '/api/chat',
-  })
+  const { messages, sendMessage, status, error } = useChat()
 
   const handleSubmit = async (e?: FormEvent) => {
     e?.preventDefault()
-    if (!input.trim() || status === 'loading') return
+    if (!input.trim() || status === 'streaming' || status === 'submitted') return
     
     const userMessage = input
     setInput('')
     
     await sendMessage({
-      content: userMessage,
-      role: 'user',
+      text: userMessage,
     })
   }
 
@@ -95,7 +92,7 @@ function ChatPage() {
         {/* Quick Actions */}
         <QuickActions 
           onSelectAction={handleQuickAction}
-          disabled={status === 'loading'}
+          disabled={status === 'streaming' || status === 'submitted'}
         />
 
         {/* Chat Input */}
@@ -106,13 +103,13 @@ function ChatPage() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message... (Shift+Enter for new line)"
-            disabled={status === 'loading'}
+            disabled={status === 'streaming' || status === 'submitted'}
             className="flex-1 min-h-[60px] max-h-[200px]"
             autoFocus
           />
           <Button 
             type="submit" 
-            disabled={!input.trim() || status === 'loading'}
+            disabled={!input.trim() || status === 'streaming' || status === 'submitted'}
             size="icon"
             className="self-end"
           >
