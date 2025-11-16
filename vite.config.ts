@@ -3,6 +3,7 @@ import { defineConfig } from 'vite'
 import tsConfigPaths from 'vite-tsconfig-paths'
 import viteReact from '@vitejs/plugin-react'
 import path from 'path'
+import netlifyPlugin from '@netlify/vite-plugin-tanstack-start'
 
 export default defineConfig({
   server: {
@@ -12,6 +13,7 @@ export default defineConfig({
     tsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
+    netlifyPlugin(),
     tanstackStart({
       srcDirectory: 'src',
     }),
