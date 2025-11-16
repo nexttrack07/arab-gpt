@@ -4,7 +4,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { T as TSS_SERVER_FUNCTION, g as getServerFnById, c as createServerFn, a as getRequestHeaders } from "../server.js";
 import { json } from "@tanstack/router-core/ssr/client";
 import { openai } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { convertToModelMessages, streamText } from "ai";
 const createMiddleware = (options, __opts) => {
   const resolvedOptions = {
     type: "request",
@@ -256,7 +256,7 @@ function RootDocument({ children }) {
     ] })
   ] });
 }
-const $$splitComponentImporter$d = () => import("./users-B0o0wu8l.js");
+const $$splitComponentImporter$d = () => import("./users-WSMaB3JD.js");
 const Route$i = createFileRoute("/users")({
   loader: async () => {
     const res = await fetch("/api/users");
@@ -316,12 +316,12 @@ const fetchPosts = createServerFn().handler(fetchPosts_createServerFn_handler, a
   const posts = await res.json();
   return posts.slice(0, 10);
 });
-const $$splitComponentImporter$c = () => import("./posts-BvCBYrWP.js");
+const $$splitComponentImporter$c = () => import("./posts-F28yEcdg.js");
 const Route$g = createFileRoute("/posts")({
   loader: async () => fetchPosts(),
   component: lazyRouteComponent($$splitComponentImporter$c, "component")
 });
-const $$splitComponentImporter$b = () => import("./deferred-YUtKVT9g.js");
+const $$splitComponentImporter$b = () => import("./deferred-BLez4F1b.js");
 const personServerFn_createServerFn_handler = createSsrRpc("f76e8f8721c12c8547a3ced6a10916f5b5076c1a10dcbeaa607360ce419d0a48");
 const personServerFn = createServerFn({
   method: "GET"
@@ -392,8 +392,8 @@ const $$splitComponentImporter$6 = () => import("./posts.index-DU8oxB5n.js");
 const Route$9 = createFileRoute("/posts/")({
   component: lazyRouteComponent($$splitComponentImporter$6, "component")
 });
-const $$splitNotFoundComponentImporter$1 = () => import("./users._userId-6r2-mX4x.js");
-const $$splitComponentImporter$5 = () => import("./users._userId-Dx2Uk77F.js");
+const $$splitNotFoundComponentImporter$1 = () => import("./users._userId-ByCGGDX3.js");
+const $$splitComponentImporter$5 = () => import("./users._userId-BRxey1WK.js");
 const $$splitErrorComponentImporter$2 = () => import("./users._userId-CG2IqJzb.js");
 const Route$8 = createFileRoute("/users/$userId")({
   loader: async ({
@@ -416,8 +416,8 @@ const Route$8 = createFileRoute("/users/$userId")({
   component: lazyRouteComponent($$splitComponentImporter$5, "component"),
   notFoundComponent: lazyRouteComponent($$splitNotFoundComponentImporter$1, "notFoundComponent")
 });
-const $$splitNotFoundComponentImporter = () => import("./posts._postId-8IFoj2rh.js");
-const $$splitComponentImporter$4 = () => import("./posts._postId-BKXuc5yQ.js");
+const $$splitNotFoundComponentImporter = () => import("./posts._postId-BQJblE3a.js");
+const $$splitComponentImporter$4 = () => import("./posts._postId-CUsYms8n.js");
 const $$splitErrorComponentImporter$1 = () => import("./posts._postId-C9z5TBp-.js");
 const Route$7 = createFileRoute("/posts/$postId")({
   loader: ({
@@ -501,25 +501,10 @@ const Route$5 = createFileRoute("/api/chat")({
               }
             );
           }
-          const coreMessages = messages.map((msg) => {
-            if (msg.role === "user") {
-              return {
-                role: "user",
-                content: msg.content
-              };
-            } else if (msg.role === "assistant") {
-              const textParts = msg.parts?.filter((p) => p.type === "text") || [];
-              const content = textParts.map((p) => p.text).join("");
-              return {
-                role: "assistant",
-                content
-              };
-            }
-            return msg;
-          });
+          const modelMessages = convertToModelMessages(messages);
           const result = streamText({
             model: openai("gpt-4o-mini"),
-            messages: coreMessages
+            messages: modelMessages
           });
           return result.toUIMessageStreamResponse();
         } catch (error) {
@@ -543,7 +528,7 @@ const $$splitComponentImporter$3 = () => import("./_nested-layout-BocDAsiI.js");
 const Route$4 = createFileRoute("/_pathlessLayout/_nested-layout")({
   component: lazyRouteComponent($$splitComponentImporter$3, "component")
 });
-const $$splitComponentImporter$2 = () => import("./posts_._postId.deep-BpTWH-oa.js");
+const $$splitComponentImporter$2 = () => import("./posts_._postId.deep-Dqp1M3IX.js");
 const $$splitErrorComponentImporter = () => import("./posts_._postId.deep-C9z5TBp-.js");
 const Route$3 = createFileRoute("/posts_/$postId/deep")({
   loader: async ({

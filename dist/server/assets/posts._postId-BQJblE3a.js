@@ -1,5 +1,5 @@
 import { jsx } from "react/jsx-runtime";
-import { N as NotFound } from "./router-BBq31br-.js";
+import { N as NotFound } from "./router-Bh9cJtAG.js";
 import "@tanstack/react-router";
 import "@tanstack/react-router-devtools";
 import "../server.js";

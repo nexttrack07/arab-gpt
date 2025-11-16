@@ -1,5 +1,5 @@
 import { jsxs, jsx } from "react/jsx-runtime";
-import { c as Route } from "./router-BBq31br-.js";
+import { c as Route } from "./router-Bh9cJtAG.js";
 import "@tanstack/react-router";
 import "@tanstack/react-router-devtools";
 import "../server.js";

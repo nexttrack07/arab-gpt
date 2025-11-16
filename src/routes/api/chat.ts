@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { openai } from '@ai-sdk/openai'
-import { streamText } from 'ai'
-import type { CoreMessage } from 'ai'
+import { streamText, convertToModelMessages } from 'ai'
 
 export const Route = createFileRoute('/api/chat')({
   server: {
@@ -24,29 +23,13 @@ export const Route = createFileRoute('/api/chat')({
             )
           }
 
-          // Convert UIMessages to CoreMessages
-          // User messages have 'content', assistant messages have 'parts' array
-          const coreMessages: CoreMessage[] = messages.map((msg: any) => {
-            if (msg.role === 'user') {
-              return {
-                role: 'user',
-                content: msg.content
-              }
-            } else if (msg.role === 'assistant') {
-              const textParts = msg.parts?.filter((p: any) => p.type === 'text') || []
-              const content = textParts.map((p: any) => p.text).join('')
-              return {
-                role: 'assistant',
-                content
-              }
-            }
-            return msg
-          })
+          // Convert UIMessages to CoreMessages using the official helper
+          const modelMessages = convertToModelMessages(messages)
 
           // Stream the response from OpenAI
           const result = streamText({
             model: openai('gpt-4o-mini'),
-            messages: coreMessages,
+            messages: modelMessages,
           })
 
           // Return the streaming response in UIMessage format

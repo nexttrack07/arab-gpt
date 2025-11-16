@@ -1,7 +1,7 @@
 import { jsxs, jsx } from "react/jsx-runtime";
 import { Await } from "@tanstack/react-router";
 import { useState, Suspense } from "react";
-import { b as Route } from "./router-BBq31br-.js";
+import { b as Route } from "./router-Bh9cJtAG.js";
 import "@tanstack/react-router-devtools";
 import "../server.js";
 import "@tanstack/history";
