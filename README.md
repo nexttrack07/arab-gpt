@@ -78,7 +78,7 @@ npm start
 - This project uses AI SDK v5 with the `@ai-sdk/react` package for the React UI hooks
 - The `useChat` hook is imported from `@ai-sdk/react` 
 - The API uses the new `sendMessage` method instead of the older `handleSubmit` pattern
-- AI responses are streamed in real-time using the `streamText` function from AI SDK Core
+- AI responses are streamed using `streamText` with `toUIMessageStreamResponse()` to match the UI message format expected by `@ai-sdk/react`
 
 ## Project Structure
 

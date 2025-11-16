@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChatMessage } from "./ChatMessage"
-import type { Message } from "ai"
+import type { UIMessage } from "ai"
 
 interface ChatMessagesProps {
-  messages: Message[]
+  messages: UIMessage[]
 }
 
 export function ChatMessages({ messages }: ChatMessagesProps) {
@@ -30,8 +30,7 @@ export function ChatMessages({ messages }: ChatMessagesProps) {
           messages.map((message) => (
             <ChatMessage
               key={message.id}
-              role={message.role}
-              content={message.content}
+              message={message}
             />
           ))
         )}

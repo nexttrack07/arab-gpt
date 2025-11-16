@@ -1,14 +1,34 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { Bot, User } from "lucide-react"
+import type { UIMessage } from "ai"
 
 interface ChatMessageProps {
-  role: "user" | "assistant"
-  content: string
+  message: UIMessage
 }
 
-export function ChatMessage({ role, content }: ChatMessageProps) {
-  const isUser = role === "user"
+export function ChatMessage({ message }: ChatMessageProps) {
+  const isUser = message.role === "user"
+
+  // Extract content from UIMessage
+  // User messages have 'content' property directly
+  // Assistant messages have 'parts' array with text parts
+  const getMessageContent = () => {
+    if ('content' in message && typeof message.content === 'string') {
+      return message.content
+    }
+    
+    if ('parts' in message && Array.isArray(message.parts)) {
+      return message.parts
+        .filter((part: any) => part.type === 'text')
+        .map((part: any) => part.text)
+        .join('')
+    }
+    
+    return ''
+  }
+
+  const content = getMessageContent()
 
   return (
     <div
