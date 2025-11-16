@@ -69,14 +69,16 @@ npm start
 
 - **Framework**: [TanStack Start](https://tanstack.com/start)
 - **UI Components**: [shadcn-ui](https://ui.shadcn.com/)
-- **AI Integration**: [Vercel AI SDK v5](https://sdk.vercel.ai/)
+- **AI Integration**: [AI SDK v5](https://ai-sdk.dev/) with `@ai-sdk/react`
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
 
 ## Important Notes
 
-- This project uses Vercel AI SDK v5, which has a different API than v4. The `useChat` hook is imported directly from `'ai'` instead of `'ai/react'`.
-- The AI responses are streamed in real-time using the `streamText` function from the SDK.
+- This project uses AI SDK v5 with the `@ai-sdk/react` package for the React UI hooks
+- The `useChat` hook is imported from `@ai-sdk/react` 
+- The API uses the new `sendMessage` method instead of the older `handleSubmit` pattern
+- AI responses are streamed in real-time using the `streamText` function from AI SDK Core
 
 ## Project Structure
 
