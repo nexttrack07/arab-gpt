@@ -13,11 +13,11 @@ export default defineConfig({
     tsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
-    netlifyPlugin(),
     tanstackStart({
       srcDirectory: 'src',
     }),
     viteReact(),
+    netlifyPlugin(),
   ],
   resolve: {
     alias: {
